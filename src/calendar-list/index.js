@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {
-  FlatList, Platform, Dimensions,
+  FlatList, Platform, Dimensions, KeyboardAvoidingView
 } from 'react-native';
 import PropTypes from 'prop-types';
 import XDate from 'xdate';
@@ -42,6 +42,10 @@ class CalendarList extends Component {
     horizontal: PropTypes.bool,
     // Dynamic calendar height
     calendarHeight: PropTypes.number,
+
+    // Note: Android and iOS both interact with this prop differently. Android may behave better 
+    // when given no behavior prop at all, whereas iOS is the opposite.
+    keyboardAvoidingBehavior: PropTypes.string
   };
 
   static defaultProps = {
@@ -54,6 +58,7 @@ class CalendarList extends Component {
     scrollEnabled: true,
     scrollsToTop: false,
     removeClippedSubviews: Platform.OS === 'android' ? false : true,
+    keyboardAvoidingBehavior: 'padding'
   }
 
   constructor(props) {
@@ -197,29 +202,31 @@ class CalendarList extends Component {
 
   render() {
     return (
-      <FlatList
-        onLayout={this.onLayout}
-        ref={(c) => this.listView = c}
-        //scrollEventThrottle={1000}
-        style={[this.style.container, this.props.style]}
-        initialListSize={this.pastScrollRange + this.futureScrollRange + 1}
-        data={this.state.rows}
-        //snapToAlignment='start'
-        //snapToInterval={this.calendarHeight}
-        removeClippedSubviews={this.props.removeClippedSubviews}
-        pageSize={1}
-        horizontal={this.props.horizontal}
-        pagingEnabled={this.props.pagingEnabled}
-        onViewableItemsChanged={this.onViewableItemsChangedBound}
-        renderItem={this.renderCalendarBound}
-        showsVerticalScrollIndicator={this.props.showScrollIndicator}
-        showsHorizontalScrollIndicator={this.props.showScrollIndicator}
-        scrollEnabled={this.props.scrollingEnabled}
-        keyExtractor={(item, index) => String(index)}
-        initialScrollIndex={this.state.openDate ? this.getMonthIndex(this.state.openDate) : false}
-        getItemLayout={this.getItemLayout}
-        scrollsToTop={this.props.scrollsToTop}
-      />
+      <KeyboardAvoidingView behavior={this.props.keyboardAvoidingBehavior}>
+        <FlatList
+          onLayout={this.onLayout}
+          ref={(c) => this.listView = c}
+          //scrollEventThrottle={1000}
+          style={[this.style.container, this.props.style]}
+          initialListSize={this.pastScrollRange + this.futureScrollRange + 1}
+          data={this.state.rows}
+          //snapToAlignment='start'
+          //snapToInterval={this.calendarHeight}
+          removeClippedSubviews={this.props.removeClippedSubviews}
+          pageSize={1}
+          horizontal={this.props.horizontal}
+          pagingEnabled={this.props.pagingEnabled}
+          onViewableItemsChanged={this.onViewableItemsChangedBound}
+          renderItem={this.renderCalendarBound}
+          showsVerticalScrollIndicator={this.props.showScrollIndicator}
+          showsHorizontalScrollIndicator={this.props.showScrollIndicator}
+          scrollEnabled={this.props.scrollingEnabled}
+          keyExtractor={(item, index) => String(index)}
+          initialScrollIndex={this.state.openDate ? this.getMonthIndex(this.state.openDate) : false}
+          getItemLayout={this.getItemLayout}
+          scrollsToTop={this.props.scrollsToTop}
+        />
+      </KeyboardAvoidingView>
     );
   }
 }
